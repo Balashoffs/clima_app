@@ -9,27 +9,15 @@ class Location{
   double get latitude => _latitude;
   double get longitude => _longitude;
 
-  Random rnd = Random();
-
-  static bool isFirst = true;
   Future<void> getCurrentLocation() async {
-    try {
-      if(isFirst){
-        Position position = await Geolocator().getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.best);
+    final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+    await geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
+        .then((Position position){
         _latitude = position.latitude;
         _longitude = position.longitude;
-        isFirst = false;
-      }else{
-        int la = rnd.nextInt(45)-45;
-        int lo = rnd.nextInt(90)-90;
-        _latitude = la.toDouble();
-        _longitude =lo.toDouble();
-      }
-
-    } catch (e) {
+    }).catchError((e){
       print(e);
-    }
+    });
   }
 
   @override

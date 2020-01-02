@@ -3,10 +3,17 @@ import 'package:clima_app/services/networking.dart';
 import 'package:clima_app/utilities/constants.dart';
 
 class WeatherModel {
+
   Location location = Location();
+
   Future<dynamic> getWeatherData() async{
     await location.getCurrentLocation();
     NetworkHelper helper = NetworkHelper('$openWeatherMapURL?lat=${location.latitude}&lon=${location.longitude}&appid=$weatherApi&units=metric');
+    return await helper.getData();
+  }
+
+  Future<dynamic> getCityWeather(cityName) async{
+    NetworkHelper helper = NetworkHelper('$openWeatherMapURL?q=$cityName&appid=$weatherApi&units=metric');
     return await helper.getData();
   }
 
@@ -41,4 +48,5 @@ class WeatherModel {
       return 'Bring a 🧥 just in case';
     }
   }
+
 }

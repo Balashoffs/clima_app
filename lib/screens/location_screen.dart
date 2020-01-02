@@ -1,3 +1,4 @@
+import 'package:clima_app/screens/city_screen.dart';
 import 'package:clima_app/screens/loading_screen.dart';
 import 'package:clima_app/services/weather.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,8 @@ class _LocationScreenState extends State<LocationScreen> {
   double temperature = 0.0;
   int condition;
   String cityName;
+  String weatherIcon;
+  String weatherMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +54,7 @@ class _LocationScreenState extends State<LocationScreen> {
                     ),
                   ),
                   FlatButton(
-                    onPressed: () {},
+                    onPressed: getCityName,
                     child: Icon(
                       Icons.location_city,
                       size: 50.0,
@@ -76,7 +79,7 @@ class _LocationScreenState extends State<LocationScreen> {
                       style: kTempTextStyle,
                     ),
                     Text(
-                      _model.getWeatherIcon(condition),
+                      weatherIcon,
                       style: kConditionTextStyle,
                     ),
                   ],
@@ -85,7 +88,7 @@ class _LocationScreenState extends State<LocationScreen> {
               Padding(
                 padding: EdgeInsets.only(right: 15.0),
                 child: Text(
-                  _model.getMessage(temperature),
+                  weatherMessage,
                   textAlign: TextAlign.right,
                   style: kMessageTextStyle,
                 ),
@@ -105,9 +108,27 @@ class _LocationScreenState extends State<LocationScreen> {
 
   void updateUI(dynamic weatherData) {
     setState(() {
+      if(weatherData == null){
+        temperature = 0.0;
+        weatherIcon = 'Error';
+        weatherMessage = 'Unable to get weather data';
+      }
       temperature = double.parse(weatherData['main']['temp'].toString());
       condition = weatherData['weather'][0]['id'];
+      weatherIcon = _model.getWeatherIcon(condition);
+      weatherMessage = _model.getMessage(temperature);
       cityName = weatherData['name'];
     });
+  }
+
+  void getCityName() async{
+    var cityName = await Navigator.push(context, MaterialPageRoute(
+      builder: (context){
+        return CityScreen();
+      },),);
+    if(cityName != null){
+      var weatherData = await _model.getCityWeather(cityName);
+      updateUI(weatherData);
+    }
   }
 }
